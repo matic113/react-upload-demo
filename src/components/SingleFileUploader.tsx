@@ -69,7 +69,14 @@ const Result = ({ status, fileUri }: { status: string; fileUri?: string }) => {
     return (
       <>
         <p>✅ File uploaded successfully!</p>
-        {fileUri && <p>File URL: {fileUri}</p>}
+        {fileUri && (
+          <p>
+            you can find it at the following url:{' '}
+            <a href={fileUri} target="_blank" rel="noopener noreferrer">
+              {fileUri}
+            </a>
+          </p>
+        )}
       </>
     );
   } else if (status === 'fail') {
