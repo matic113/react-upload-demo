@@ -2,9 +2,8 @@ import React, { useState } from 'react';
 
 const SingleFileUploader = () => {
   const [file, setFile] = useState<File | null>(null);
-  const [status, setStatus] = useState<
-    'initial' | 'uploading' | 'success' | 'fail'
-  >('initial');
+  const [status, setStatus] = useState<'initial' | 'uploading' | 'success' | 'fail'>('initial');
+  const [fileUri, setFileUri] = useState<string>('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
@@ -18,10 +17,10 @@ const SingleFileUploader = () => {
       setStatus('uploading');
 
       const formData = new FormData();
-      formData.append('imageFile', file);
+      formData.append('file', file);
 
       try {
-        const result = await fetch('https://nile-cars.azurewebsites.net/api/images/upload', {
+        const result = await fetch('https://nile-cars.azurewebsites.net/api/files/upload', {
           method: 'POST',
           body: formData,
         });
@@ -29,6 +28,7 @@ const SingleFileUploader = () => {
         const data = await result.json();
 
         console.log(data);
+        setFileUri(data.fileUri);
         setStatus('success');
       } catch (error) {
         console.error(error);
@@ -54,20 +54,24 @@ const SingleFileUploader = () => {
       )}
 
       {file && (
-        <button
-          onClick={handleUpload}
-          className="submit"
-        >Upload a file</button>
+        <button onClick={handleUpload} className="submit">
+          Upload a file
+        </button>
       )}
 
-      <Result status={status} />
+      <Result status={status} fileUri={fileUri} />
     </>
   );
 };
 
-const Result = ({ status }: { status: string }) => {
+const Result = ({ status, fileUri }: { status: string; fileUri?: string }) => {
   if (status === 'success') {
-    return <p>✅ File uploaded successfully!</p>;
+    return (
+      <>
+        <p>✅ File uploaded successfully!</p>
+        {fileUri && <p>File URL: {fileUri}</p>}
+      </>
+    );
   } else if (status === 'fail') {
     return <p>❌ File upload failed!</p>;
   } else if (status === 'uploading') {
@@ -76,6 +80,5 @@ const Result = ({ status }: { status: string }) => {
     return null;
   }
 };
-
 
 export default SingleFileUploader;
